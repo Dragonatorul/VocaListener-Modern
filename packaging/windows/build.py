@@ -89,7 +89,7 @@ def main():
         "default_prefix_domain_user": "%LOCALAPPDATA%\\Programs\\VocaListener-Modern",
         "uninstall_name": "VocaListener Modern",
         "initialize_conda": False, "register_python": False, "register_envs": False,
-        "check_path_spaces": False, "check_path_length": False,
+        "check_path_spaces": False,
         "keep_pkgs": False, "menu_packages": [],
         "license_file": str((ROOT / "LICENSE").resolve()),
         "post_install": str((ROOT / "packaging/windows/post_install.bat").resolve()),
