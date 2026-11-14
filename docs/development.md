@@ -16,6 +16,8 @@ For source runs without `models/`, first download MFA models with `mfa model dow
 
 The legacy `run.sh` is a source-development shortcut. The desktop entry point is `src/launch.py`; it configures bundled DLLs, PATH, Qt plugins, UTF-8 subprocess output, local MFA state, and Numba caches before importing native dependencies. Conda environment names do not gate imports. The native installed launcher ignores external Python packages and invokes this entry point with the packaged interpreter. Processing uses that interpreter too.
 
+`src/mfa_compat.py` repairs MFA 3.3.8's Windows executable probe: upstream adds shell quotes to a filename before passing it in a subprocess argument list. The compatibility layer removes those outer quotes while preserving binary discovery and all dependency checks. The installed test's folder with spaces is the regression check for this issue. Reassess this compatibility layer when updating MFA.
+
 ## Validation
 
 ```text
