@@ -5,6 +5,7 @@ import argparse
 import json
 import shutil
 from pathlib import Path
+from runtime import configure_runtime, mfa_command, model_paths, subprocess_options
 
 def setup_tmp_directory(tmp_dir="tmp"):
     """Create and setup the temporary directory for processing"""
@@ -16,32 +17,36 @@ def setup_tmp_directory(tmp_dir="tmp"):
 
 def run_mfa_alignment(input_dir, output_dir, temp_dir, language):
     """Run the Montreal Forced Aligner alignment command with specified language"""
-    lang_model = f"{language}_mfa"
-    mfa_command = [
-        "mfa", "align",
+    dictionary, acoustic = model_paths(language)
+    command = mfa_command() + [
+        "align",
         input_dir,
-        lang_model,
-        lang_model,
+        str(dictionary),
+        str(acoustic),
         output_dir,
-        "--temp_directory", temp_dir,
+        "--temporary_directory", temp_dir,
         "--beam", "400",
         "--retry_beam", "1000",
         "--clean",
-        "--verbose"
+        "--verbose",
+        "--num_jobs", "1",
+        "--single_speaker",
+        "--no_use_postgres",
+        "--no_use_mp"
     ]
 
     print(f"\nRunning MFA alignment command for {language}:")
-    print(' '.join(mfa_command))
+    print(' '.join(command))
     print(f"Using temporary directory: {temp_dir}")
 
     try:
         process = subprocess.Popen(
-            mfa_command,
+            command,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
             bufsize=1,
-            universal_newlines=True
+            **subprocess_options()
         )
 
         print("\nMFA Output:")
@@ -162,6 +167,7 @@ def step5_convert_to_svp(remapped_phones_json, output_svp, pitch_file=None):
         return False
 
 def main():
+    configure_runtime()
     parser = argparse.ArgumentParser(description='Process audio for Synthesizer V')
     parser.add_argument('--input_dir', type=str, required=True,
                         help='Directory containing audio and text files')
@@ -173,8 +179,8 @@ def main():
                         help='Dictionary file for phoneme mapping')
     parser.add_argument('--pitch_interval', type=int, default=10,
                         help='Pitch extraction interval in milliseconds (default: 10ms)')
-    parser.add_argument('--language', type=str, default='russian',
-                        help='Language for MFA alignment (default: russian)')
+    parser.add_argument('--language', type=str, default='english',
+                        help='Language for MFA alignment (default: english)')
     parser.add_argument('--debug', action='store_true',
                         help='Run additional validation tests (for debugging only)')
     parser.add_argument('--step', type=str, default='all',
@@ -260,6 +266,8 @@ def main():
             success &= step5_convert_to_svp(remapped_phones_json, args.output_svp, pitch_file)
             if success:
                 print(f"\nProcessing complete! Output saved to {args.output_svp}")
+
+    return 0 if success else 1
 
 if __name__ == "__main__":
     sys.exit(main())

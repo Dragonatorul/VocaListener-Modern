@@ -6,29 +6,6 @@ import sys
 import os
 import subprocess
 
-def verify_environment():
-    # Check if we're in the right conda environment
-    conda_env = os.environ.get('CONDA_DEFAULT_ENV', '')
-    if 'VocaListener-Modern' not in conda_env:
-        print("ERROR: This script must be run in the voice_to_synth conda environment")
-        print("Please activate the environment first:")
-        print(f"conda activate {os.path.abspath('./lib')}")
-        sys.exit(1)
-
-    # Additional package verification
-    required_packages = ['librosa', 'soundfile', 'numpy']
-    for package in required_packages:
-        try:
-            __import__(package)
-        except ImportError:
-            print(f"ERROR: Required package '{package}' is missing from the environment")
-            print("Please reinstall the environment using:")
-            print("conda env create -f environment.yml --prefix ./lib")
-            sys.exit(1)
-
-# Run verification at script start
-verify_environment()
-
 def extract_pitch_at_intervals(wav_path, interval_ms, output_txt_path):
     """Extract pitch data from audio file at specified intervals"""
     print(f"Loading audio: {wav_path}")

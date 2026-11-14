@@ -1,0 +1,150 @@
+name: Windows installer
+
+on:
+  push:
+    branches: [main, 'codex/**']
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          activate-environment: ''
+          channels: conda-forge
+          channel-priority: strict
+      - name: Select version
+        run: |
+          $version = (Get-Content VERSION).Trim()
+          if ($env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME -ne "v$version") {
+            throw 'The tag must match VERSION.'
+          }
+          "APP_VERSION=$version" >> $env:GITHUB_ENV
+      - name: Build native launcher
+        shell: cmd
+        run: |
+          for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath`) do call "%%i\Common7\Tools\VsDevCmd.bat" -arch=x64
+          if not exist build mkdir build
+          cl /nologo /O2 /MT /DUNICODE /D_UNICODE packaging\windows\launcher.c /Fo:build\launcher.obj /link /SUBSYSTEM:WINDOWS /OUT:build\VocaListener-Modern.exe user32.lib
+      - name: Install packaging tools and runtime
+        run: |
+          conda install --name base --override-channels --channel conda-forge constructor=3.17.3 -y
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          conda env create --prefix "$env:RUNNER_TEMP\runtime" --file packaging/windows/environment.yml
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Unit checks
+        run: |
+          python -m unittest discover -s tests -p 'test_runtime.py' -v
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          python -m compileall -q src packaging/windows
+      - name: Bundle models, licenses, and installer
+        run: |
+          $cache = (conda info --json | ConvertFrom-Json).pkgs_dirs[0]
+          python packaging/windows/build.py --version $env:APP_VERSION --prefix "$env:RUNNER_TEMP\runtime" --package-cache $cache
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          constructor build/installer --output-dir dist
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          conda list --prefix "$env:RUNNER_TEMP\runtime" --explicit | Set-Content dist/windows-runtime-explicit.txt
+          Copy-Item docs/windows.html dist/User-Guide.html
+          Copy-Item docs/third-party.md dist/THIRD-PARTY.md
+          Copy-Item build/installer/app/third-party/packages.json dist/packages.json
+          $installer = Get-ChildItem dist/*.exe
+          $hash = (Get-FileHash $installer.FullName -Algorithm SHA256).Hash.ToLower()
+          "$hash  $($installer.Name)" | Set-Content dist/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: dist/*
+          if-no-files-found: error
+          compression-level: 0
+
+  test-installed:
+    needs: build
+    runs-on: windows-2025
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-installer
+          path: dist
+      - name: Install the downloaded EXE on a fresh runner
+        shell: pwsh
+        run: |
+          $installer = (Get-ChildItem dist/*.exe).FullName
+          $prefix = "$env:RUNNER_TEMP\VocaListener Test"
+          $process = Start-Process -FilePath $installer -ArgumentList @('/S', '/InstallationType=JustMe', '/AddToPath=0', '/RegisterPython=0', "/D=$prefix") -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw "Installer failed: $($process.ExitCode)" }
+          "INSTALLED_PREFIX=$prefix" >> $env:GITHUB_ENV
+      - name: Test the installed app offline with no development PATH
+        shell: pwsh
+        run: |
+          $env:VOCALISTENER_DATA_DIR = "$env:RUNNER_TEMP\User Data\日本語"
+          $env:PATH = "$env:SystemRoot\System32;$env:SystemRoot"
+          Remove-Item Env:CONDA_PREFIX, Env:CONDA_DEFAULT_ENV, Env:PYTHONPATH -ErrorAction SilentlyContinue
+          foreach ($program in @('python.exe', 'pythonw.exe', 'VocaListener-Modern.exe')) {
+            New-NetFirewallRule -DisplayName "VocaListener offline $program" -Direction Outbound -Action Block -Program "$env:INSTALLED_PREFIX\$program" | Out-Null
+          }
+          $gui = Start-Process "$env:INSTALLED_PREFIX\VocaListener-Modern.exe" -ArgumentList '--smoke-test' -PassThru
+          if (-not $gui.WaitForExit(60000)) { $gui.Kill(); throw 'GUI did not finish the startup check.' }
+          if ($gui.ExitCode -ne 0) { throw 'Installed GUI failed.' }
+          & "$env:INSTALLED_PREFIX\python.exe" tests/smoke_installed.py --prefix $env:INSTALLED_PREFIX
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Retain diagnostic logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-install-test-logs
+          path: |
+            ${{ runner.temp }}/User Data/**
+            ${{ runner.temp }}/VocaListener Test/install.log
+          if-no-files-found: ignore
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [build, test-installed]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-installer
+          path: dist
+      - name: Publish tested release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          cat > release-notes.md <<'NOTES'
+          Download **VocaListener-Modern-*-Windows-x64-Setup.exe** below. It is the only file needed to install and run on Windows 11 x64.
+
+          All runtime dependencies and the supported language models are included. No Python, Conda, WSL, Linux, Bash, GPU toolkit, or additional model download is needed. Launch **VocaListener Modern** from the Start menu after installation.
+
+          **English is the default.** Export is Synthesizer V `.svp`; Vocaloid export and recording are not implemented. A Synthesizer V editor and a suitable voice are only needed to render/edit the resulting project.
+
+          Open **User Guide** in the Start menu or **Get Help** in the app for offline instructions. The same guide is attached as **User-Guide.html**. See **SHA256SUMS.txt** for the installer checksum and **THIRD-PARTY.md** for dependencies and licensing.
+
+          The installer is unsigned. Windows may show an unknown-publisher prompt. Install only the asset from this repository's release page.
+
+          Automated checks install this exact EXE on a separate Windows runner, launch the GUI, and run audio through pitch extraction, MFA alignment, phoneme mapping, and SVP export with network access blocked for the application.
+          NOTES
+          gh release create "$RELEASE_TAG" dist/* --verify-tag --title "VocaListener Modern $RELEASE_TAG" --notes-file release-notes.md

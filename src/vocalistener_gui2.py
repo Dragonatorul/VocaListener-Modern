@@ -5,6 +5,7 @@ import shutil
 import subprocess
 import re
 from pathlib import Path
+from runtime import work_directory, python_executable, subprocess_options, open_help
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QFrame, QMessageBox, QFileDialog, QTextEdit
@@ -95,7 +96,7 @@ class WorkerThread(QThread):
 
             try:
                 cmd = [
-                    sys.executable, "-u",
+                    python_executable(), "-u",
                     self.main_script,
                     "--input_dir", os.path.join(self.tmp_dir, "input"),
                     "--output_svp", os.path.join(self.tmp_dir, "output.svp"),
@@ -111,7 +112,7 @@ class WorkerThread(QThread):
                     stderr=subprocess.STDOUT,
                     text=True,
                     bufsize=1,
-                    universal_newlines=True,
+                    **subprocess_options(),
                     cwd=self.script_dir
                 )
 
@@ -166,24 +167,19 @@ class WorkerThread(QThread):
         self.all_done.emit()
 
     def get_dict_path(self):
-        lang = self.profile['language'].lower()
-        engine = "Vocaloid" if self.profile['engine'] == "Vocaloid" else "SynthV"
-        root_dir = os.path.dirname(self.tmp_dir)
-        res_dir = os.path.join(root_dir, 'res')
-        dict_file_name = "Vocaloid.txt" if engine == "Vocaloid" else "synthV.txt"
-        return os.path.join(res_dir, lang, dict_file_name)
+        return self.profile["dict_path"]
 
     def stop(self):
         self._is_running = False
 
 class Screen2(QMainWindow):
-    def __init__(self):
+    def __init__(self, profile=None, tmp_dir=None):
         super().__init__()
         self.setWindowTitle("VocalListener Modern - Screen 2")
         self.resize(600, 500)
 
-        self.profile = self.load_profile()
-        self.tmp_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'tmp')
+        self.tmp_dir = str(tmp_dir or work_directory())
+        self.profile = profile if profile is not None else self.load_profile()
 
         self.circles = []
         self.status_labels = []
@@ -211,9 +207,9 @@ class Screen2(QMainWindow):
     def load_profile(self):
         script_dir = os.path.dirname(os.path.abspath(__file__))
         root_dir = os.path.dirname(script_dir)
-        path = os.path.join(root_dir, 'tmp', 'profile.json')
+        path = os.path.join(self.tmp_dir, 'profile.json')
         if os.path.exists(path):
-            with open(path, 'r') as f: return json.load(f)
+            with open(path, 'r', encoding='utf-8') as f: return json.load(f)
         return {}
 
     def setup_ui(self):
@@ -278,6 +274,8 @@ class Screen2(QMainWindow):
 
         self.btn_help = QPushButton("Get Help")
         self.btn_tutorial = QPushButton("Tutorial")
+        self.btn_help.clicked.connect(open_help)
+        self.btn_tutorial.clicked.connect(open_help)
 
         self.btn_save = QPushButton("Save Output File")
         self.btn_save.setEnabled(False)
@@ -375,8 +373,7 @@ class Screen2(QMainWindow):
             self.btn_start.setEnabled(True)
             self.btn_start.setText("Resume Processing")
             self.btn_stop.setEnabled(False)
-            self.worker = None
-
+    
             # Alert User
             msg = (
                 f"Found {len(phonemes)} unset phonemes and added them to:\n{dict_path}\n\n"
@@ -395,7 +392,6 @@ class Screen2(QMainWindow):
         self.btn_start.setText("Resume Processing")
         self.btn_stop.setEnabled(False)
         self.append_log("Processing halted by user.")
-        self.worker = None
 
     def on_error(self, idx, msg):
         self.circles[idx].set_status("error")
@@ -404,7 +400,6 @@ class Screen2(QMainWindow):
         self.btn_stop.setEnabled(False)
         self.append_log(f"ERROR: {msg}")
         QMessageBox.critical(self, f"Step {idx+1} Failed", msg)
-        self.worker = None
 
     def on_finished(self):
         if self.btn_start.text() == "Done":
@@ -415,7 +410,6 @@ class Screen2(QMainWindow):
         self.btn_stop.setEnabled(False)
         self.btn_save.setEnabled(True)
         self.append_log("All steps completed successfully.")
-        self.worker = None
 
     def append_log(self, msg):
         self.log_console.append(msg)
@@ -426,10 +420,6 @@ class Screen2(QMainWindow):
         source = os.path.join(self.tmp_dir, "output.svp")
         default_ext = ".svp"
         file_filter = "SynthV Project (*.svp);;All Files (*)"
-
-        if self.profile.get('engine') == "Vocaloid":
-            file_filter = "Vocaloid Project (*.vsqx *.ust *.mid);;SynthV Project (*.svp);;All Files (*)"
-            default_ext = ".vsqx"
 
         if not os.path.exists(source):
             QMessageBox.warning(self, "File Missing", "Output file not found in tmp.")

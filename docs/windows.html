@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VocaListener Modern — Windows user guide</title>
+<style>
+body{font:18px/1.6 system-ui,sans-serif;max-width:850px;margin:40px auto;padding:0 24px;color:#192a3a;background:#fff}h1,h2{line-height:1.2}a{color:#0757aa}code{font-size:.9em;overflow-wrap:anywhere;background:#f0f3f5;padding:.15em .3em}li{margin:.5em 0}nav{padding:16px;background:#f0f3f5}small{color:#526170}
+</style>
+<h1>VocaListener Modern</h1>
+<p>Windows user guide · English by default · Japanese available</p>
+<nav><a href="#install">Install</a> · <a href="#convert">Convert a recording</a> · <a href="#files">Your files</a> · <a href="#help">Troubleshooting</a> · <a href="#remove">Update or uninstall</a></nav>
+<h2 id="install">Install with one download</h2>
+<ol>
+<li>Visit the <a href="https://github.com/Dragonatorul/VocaListener-Modern/releases/latest">latest release</a> and download <code>VocaListener-Modern-&lt;version&gt;-Windows-x64-Setup.exe</code> from Assets. GitHub's “Source code” archives are for developers.</li>
+<li>Run the file. Choose <strong>Just Me</strong> and keep the suggested installation folder. The installer is unsigned; Windows may display an unknown-publisher prompt. Check that the file came from this project's release page before choosing to run it.</li>
+<li>Open <strong>VocaListener Modern</strong> from the Start menu. This guide is available as <strong>User Guide</strong> beside it, and from <strong>Get Help</strong> or <strong>Tutorial</strong> in the app.</li>
+</ol>
+<p>Requires Windows 11 x64 (Intel or AMD), a CPU, and enough disk space for the bundled runtime and working audio. Allow several GB of free space during installation. No separate software installation, GPU, command prompt, terminal, model download, or internet connection is required after downloading the installer. All processing is local. Windows on ARM is not a tested target.</p>
+<h2 id="convert">Convert a recording</h2>
+<ol>
+<li>Start with a short, clear recording of one unaccompanied singer. WAV is recommended; FLAC and MP3 are also useful. Background instruments, effects, and long recordings can make alignment less accurate and processing slower.</li>
+<li>Leave <strong>English</strong> selected, or choose <strong>Japanese</strong>. Both language models and dictionaries are included. Japanese accepts UTF-8 Japanese text; use the same written words as the recording.</li>
+<li>Click <strong>Choose Audio File</strong>, then select your recording.</li>
+<li>Type the exact lyrics into the text box or choose a UTF-8 <code>.txt</code> lyrics file. A selected text file takes priority over typed text.</li>
+<li>Click <strong>Next</strong>, then <strong>Start Processing</strong>. The five steps extract pitch, align speech sounds with the lyrics, read the alignment, map phonemes, and write the project. The first pitch extraction can take longer while its local cache is prepared.</li>
+<li>After completion, click <strong>Save Output File</strong> and choose a location for your <code>.svp</code>.</li>
+<li>Open that file in Synthesizer V, select your own English- or Japanese-capable voice, and review the timing, pronunciation, and pitch. The source recording is not embedded in the project.</li>
+</ol>
+<p>The converter includes everything needed to create the project. Synthesizer V and voice databases are separate products used to edit or render it. The export currently uses placeholder “la” note lyrics with explicit phonemes; it does not restore the original written lyrics to each note. MFA models are trained on speech, so singing may need manual edits. Japanese long consonants and devoiced vowels are approximate mappings. Vocaloid export is disabled because it is not implemented. The Record button is a placeholder; select an existing recording.</p>
+<p><strong>Stop</strong> finishes the current step before stopping. Click a step indicator to resume from that step only when its earlier intermediate files still exist. <strong>Clear Tmp</strong> removes intermediate output while retaining input and profile. Save the final project elsewhere before starting another conversion.</p>
+<h2 id="files">Where your files are stored</h2>
+<p>By default the program is installed under <code>%LOCALAPPDATA%\Programs\VocaListener-Modern</code>. It keeps working files separately under <code>%LOCALAPPDATA%\VocaListener-Modern\data</code>. Paste either path into File Explorer's address bar.</p>
+<ul>
+<li><code>tmp\input</code>: copies of the selected recording and lyrics. Selecting another recording replaces the prior input pair.</li>
+<li><code>tmp\output.svp</code>: latest generated project; use Save Output File to keep your own copy.</li>
+<li><code>res\english\synthV.txt</code> and <code>res\japanese\synthV.txt</code>: editable phoneme mappings. Each row is <code>source phoneme | SynthV phoneme | English</code> (or <code>Japanese</code>). Edits are preserved when the app restarts.</li>
+<li><code>application.log</code>, <code>tmp</code>, and <code>mfa</code>: startup and processing diagnostics.</li>
+</ul>
+<p>The installed <code>app\third-party</code> directory contains component notices, model licenses, source metadata, and package inventory. Application source is installed in <code>app\src</code>.</p>
+<h2 id="help">Troubleshooting</h2>
+<ul>
+<li><strong>App does not open:</strong> check <code>application.log</code> in the data folder above. Reinstall from the official release asset if the runtime is incomplete.</li>
+<li><strong>Alignment fails:</strong> check that language and lyrics match the audio, try a shorter clean WAV, and read the processing log. Do not download extra models; both supported languages are already included.</li>
+<li><strong>Missing phoneme warning:</strong> the app adds unmapped symbols to your editable dictionary. Complete those rows, then resume from Remap Phones. To restore a bundled mapping, close the app, rename the edited mapping file, and reopen it.</li>
+<li><strong>Incorrect sound in Synthesizer V:</strong> choose a voice that supports the project's language and review its explicit phonemes. Japanese mapping quality needs listening checks with your chosen voice.</li>
+</ul>
+<p>Report reproducible problems on <a href="https://github.com/Dragonatorul/VocaListener-Modern/issues">GitHub Issues</a> with the release version, language, failing step, and relevant log excerpt. Logs can include file paths and lyrics; review them before sharing. Internet access is only needed to visit support or download releases.</p>
+<h2 id="remove">Update or uninstall</h2>
+<p>Save output projects, close the app, and uninstall the previous version through <strong>Windows Settings → Apps → Installed apps → VocaListener Modern</strong> before installing a new release. The installer requires an empty destination. Your data directory and saved projects are retained. Remove the data directory yourself to erase recordings, lyrics, cache, and custom mappings too.</p>
+<p><small>Automated release checks use Windows Server runners, including installation into a path with spaces and conversion from a user path containing Japanese characters. Actual pronunciation quality and physical Windows 11 desktop behavior should be checked with your recordings.</small></p>
+</html>

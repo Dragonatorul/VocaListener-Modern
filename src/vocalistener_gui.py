@@ -3,10 +3,12 @@ import os
 import shutil
 import json
 import subprocess
+from runtime import resource_directory, work_directory, open_help
+from pathlib import Path
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QRadioButton, QLineEdit, QTextEdit,
-    QFrame, QMessageBox, QFileDialog
+    QFrame, QMessageBox, QFileDialog, QComboBox
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
@@ -22,8 +24,8 @@ class VocalListenerModern(QMainWindow):
         self.root_dir = os.path.dirname(self.script_dir)
 
         # Define resource and temp paths
-        self.res_dir = os.path.join(self.root_dir, 'res')
-        self.tmp_dir = os.path.join(self.root_dir, 'tmp')
+        self.res_dir = str(resource_directory())
+        self.tmp_dir = str(work_directory())
         self.input_dir = os.path.join(self.tmp_dir, 'input')
 
         # Create directories if they don't exist
@@ -69,6 +71,8 @@ class VocalListenerModern(QMainWindow):
         self.radio_vocaloid = QRadioButton("Vocaloid")
 
         self.radio_synth_v.setChecked(True)
+        self.radio_vocaloid.setEnabled(False)
+        self.radio_vocaloid.setToolTip("Vocaloid export is not implemented.")
         self.radio_synth_v.toggled.connect(self.check_dictionary_status)
         self.radio_vocaloid.toggled.connect(self.check_dictionary_status)
 
@@ -85,8 +89,9 @@ class VocalListenerModern(QMainWindow):
 
         lang_input_layout = QHBoxLayout()
         lang_label = QLabel("Language:")
-        self.lang_input = QLineEdit("Russian")
-        self.lang_input.textChanged.connect(self.on_lang_text_changed)
+        self.lang_input = QComboBox()
+        self.lang_input.addItems(["english", "japanese"])
+        self.lang_input.currentTextChanged.connect(self.check_dictionary_status)
 
         lang_input_layout.addWidget(lang_label)
         lang_input_layout.addWidget(self.lang_input)
@@ -121,7 +126,7 @@ class VocalListenerModern(QMainWindow):
 
         audio_btn_row = QHBoxLayout()
         audio_label = QLabel("Audio:")
-        self.btn_audio_choose = QPushButton("Choose for file")
+        self.btn_audio_choose = QPushButton("Choose Audio File")
         self.btn_audio_record = QPushButton("Record")
 
         self.btn_audio_choose.clicked.connect(self.open_audio_file)
@@ -166,6 +171,8 @@ class VocalListenerModern(QMainWindow):
         footer_layout = QHBoxLayout()
         self.btn_help = QPushButton("Get help")
         self.btn_tutorial = QPushButton("Tutorial")
+        self.btn_help.clicked.connect(open_help)
+        self.btn_tutorial.clicked.connect(open_help)
         self.btn_next = QPushButton("Next")
 
         self.btn_next.setStyleSheet("background-color: #4CAF50; color: white; font-weight: bold;")
@@ -178,19 +185,12 @@ class VocalListenerModern(QMainWindow):
         self.main_layout.addLayout(footer_layout)
 
         # Initial Check
-        self.on_lang_text_changed(self.lang_input.text())
+        self.check_dictionary_status()
 
     # --- Logic ---
 
-    def on_lang_text_changed(self, text):
-        if text != text.lower():
-            self.lang_input.blockSignals(True)
-            self.lang_input.setText(text.lower())
-            self.lang_input.blockSignals(False)
-        self.check_dictionary_status()
-
     def get_dict_path(self):
-        language = self.lang_input.text().strip().lower()
+        language = self.lang_input.currentText().strip().lower()
         if not language: return None
         lang_folder = os.path.join(self.res_dir, language)
         if self.radio_vocaloid.isChecked():
@@ -235,6 +235,10 @@ class VocalListenerModern(QMainWindow):
         if file_name:
             self.selected_audio_file = file_name
             base_name = os.path.basename(file_name)
+            # Each conversion has exactly one audio/text pair; discard old inputs.
+            for old in Path(self.input_dir).iterdir():
+                if old.is_file():
+                    old.unlink()
             dest_path = os.path.join(self.input_dir, base_name)
             try:
                 shutil.copy(file_name, dest_path)
@@ -275,26 +279,21 @@ class VocalListenerModern(QMainWindow):
         audio_name_only = os.path.splitext(self.copied_audio_filename)[0]
         final_text_filename = f"{audio_name_only}.txt"
 
-        if self.selected_text_file:
-            # Copy to input dir then rename
-            text_filename = os.path.basename(self.selected_text_file)
-            current_text_in_tmp = os.path.join(self.input_dir, text_filename)
-            if not os.path.exists(current_text_in_tmp):
-                shutil.copy(self.selected_text_file, current_text_in_tmp)
-
-            new_text_path = os.path.join(self.input_dir, final_text_filename)
-            try:
-                os.rename(current_text_in_tmp, new_text_path)
-            except OSError: pass # Handle potential overwrite issues silently or warn
-        else:
-            # Save manual text
-            new_text_path = os.path.join(self.input_dir, final_text_filename)
-            with open(new_text_path, 'w', encoding='utf-8') as f:
-                f.write(self.text_area.toPlainText())
+        new_text_path = os.path.join(self.input_dir, final_text_filename)
+        try:
+            if self.selected_text_file:
+                # Read/write also handles replacing a previous conversion on Windows.
+                text = Path(self.selected_text_file).read_text(encoding="utf-8-sig")
+            else:
+                text = self.text_area.toPlainText()
+            Path(new_text_path).write_text(text, encoding="utf-8")
+        except (OSError, UnicodeError) as error:
+            QMessageBox.critical(self, "Lyrics Error", str(error))
+            return
 
         # 3. Save Profile to tmp
         profile = {
-            "language": self.lang_input.text(),
+            "language": self.lang_input.currentText(),
             "engine": "Vocaloid" if self.radio_vocaloid.isChecked() else "Synth V",
             "audio_filename": self.copied_audio_filename,
             "text_filename": final_text_filename,
@@ -303,23 +302,16 @@ class VocalListenerModern(QMainWindow):
         }
 
         profile_path = os.path.join(self.tmp_dir, 'profile.json')
-        with open(profile_path, 'w') as f:
+        with open(profile_path, 'w', encoding='utf-8') as f:
             json.dump(profile, f, indent=4)
 
         print(f"Profile saved to {profile_path}")
 
-        # 4. Launch Screen 2 and Close Screen 1
-        screen2_path = os.path.join(self.script_dir, "vocalistener_gui2.py")
-
-        if os.path.exists(screen2_path):
-            try:
-                # Popen runs the script in a new process, allowing this one to close
-                subprocess.Popen([sys.executable, screen2_path])
-                self.close()
-            except Exception as e:
-                QMessageBox.critical(self, "Error", f"Could not launch Screen 2: {e}")
-        else:
-            QMessageBox.warning(self, "Screen 2 Missing", f"Could not find 'vocalistener_gui2.py' in {self.script_dir}")
+        # Keep both windows in one QApplication with the same writable workspace.
+        from vocalistener_gui2 import Screen2
+        self.screen2 = Screen2(profile=profile, tmp_dir=self.tmp_dir)
+        self.screen2.show()
+        self.hide()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

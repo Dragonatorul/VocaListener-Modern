@@ -1,77 +1,161 @@
-ʊ
-dʒ
-z
-ð
- 
-ʉː
-ɡ
-o
-ɹ
-θ
-tʲ
-p
-bʲ
-tʰ
-ə
-əw
-ʋ
-t
-w
-ɐ
-s
-æ
-ɒː
-l
-ɛː
-ɫ
-tʃ
-ɝ
-ɔ
-h
-n
-ɜː
-ɚ
-uː
-cʰ
-oː
-ɑː
-ɛ
-f
-a
-ej
-iː
-d
-spn
-mʲ
-ɟ
-cʷ
-e
-dʲ
-kʷ
-t̪
-j
-ɑ
-eː
-ɒ
-u
-d̪
-k
-m
-b
-ʎ
-ç
-aw
-i
-v
-tʷ
-ɖ
-c
-ʈʲ
-ɲ
-ʃ
-ŋ
-ʈ
-ɪ
-fʲ
-aː
-aj
+# MFA English US ARPA -> Synthesizer V English ARPAbet
+AA | aa | English
+AA0 | aa | English
+AA1 | aa | English
+AA2 | aa | English
+AE | ae | English
+AE0 | ae | English
+AE1 | ae | English
+AE2 | ae | English
+AH | ah | English
+AH0 | ah | English
+AH1 | ah | English
+AH2 | ah | English
+AO | ao | English
+AO0 | ao | English
+AO1 | ao | English
+AO2 | ao | English
+AW | aw | English
+AW0 | aw | English
+AW1 | aw | English
+AW2 | aw | English
+AY | ay | English
+AY0 | ay | English
+AY1 | ay | English
+AY2 | ay | English
+B | b | English
+B0 | b | English
+B1 | b | English
+B2 | b | English
+CH | ch | English
+CH0 | ch | English
+CH1 | ch | English
+CH2 | ch | English
+D | d | English
+D0 | d | English
+D1 | d | English
+D2 | d | English
+DH | dh | English
+DH0 | dh | English
+DH1 | dh | English
+DH2 | dh | English
+EH | eh | English
+EH0 | eh | English
+EH1 | eh | English
+EH2 | eh | English
+ER | er | English
+ER0 | er | English
+ER1 | er | English
+ER2 | er | English
+EY | ey | English
+EY0 | ey | English
+EY1 | ey | English
+EY2 | ey | English
+F | f | English
+F0 | f | English
+F1 | f | English
+F2 | f | English
+G | g | English
+G0 | g | English
+G1 | g | English
+G2 | g | English
+HH | hh | English
+HH0 | hh | English
+HH1 | hh | English
+HH2 | hh | English
+IH | ih | English
+IH0 | ih | English
+IH1 | ih | English
+IH2 | ih | English
+IY | iy | English
+IY0 | iy | English
+IY1 | iy | English
+IY2 | iy | English
+JH | jh | English
+JH0 | jh | English
+JH1 | jh | English
+JH2 | jh | English
+K | k | English
+K0 | k | English
+K1 | k | English
+K2 | k | English
+L | l | English
+L0 | l | English
+L1 | l | English
+L2 | l | English
+M | m | English
+M0 | m | English
+M1 | m | English
+M2 | m | English
+N | n | English
+N0 | n | English
+N1 | n | English
+N2 | n | English
+NG | ng | English
+NG0 | ng | English
+NG1 | ng | English
+NG2 | ng | English
+OW | ow | English
+OW0 | ow | English
+OW1 | ow | English
+OW2 | ow | English
+OY | oy | English
+OY0 | oy | English
+OY1 | oy | English
+OY2 | oy | English
+P | p | English
+P0 | p | English
+P1 | p | English
+P2 | p | English
+R | r | English
+R0 | r | English
+R1 | r | English
+R2 | r | English
+S | s | English
+S0 | s | English
+S1 | s | English
+S2 | s | English
+SH | sh | English
+SH0 | sh | English
+SH1 | sh | English
+SH2 | sh | English
+T | t | English
+T0 | t | English
+T1 | t | English
+T2 | t | English
+TH | th | English
+TH0 | th | English
+TH1 | th | English
+TH2 | th | English
+UH | uh | English
+UH0 | uh | English
+UH1 | uh | English
+UH2 | uh | English
+UW | uw | English
+UW0 | uw | English
+UW1 | uw | English
+UW2 | uw | English
+V | v | English
+V0 | v | English
+V1 | v | English
+V2 | v | English
+W | w | English
+W0 | w | English
+W1 | w | English
+W2 | w | English
+Y | y | English
+Y0 | y | English
+Y1 | y | English
+Y2 | y | English
+Z | z | English
+Z0 | z | English
+Z1 | z | English
+Z2 | z | English
+ZH | zh | English
+ZH0 | zh | English
+ZH1 | zh | English
+ZH2 | zh | English
+ |  | English
+sil |  | English
+sp |  | English
+spn | br | English

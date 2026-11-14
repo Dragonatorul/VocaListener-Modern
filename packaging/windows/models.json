@@ -1,0 +1,22 @@
+[
+  {
+    "filename": "english_us_arpa.zip",
+    "url": "https://github.com/MontrealCorpusTools/mfa-models/releases/download/acoustic-english_us_arpa-v3.0.0/english_us_arpa.zip",
+    "sha256": "d35ce271ded357d833d2f4b8d1041dc3748b9538567ba13f2c697f4e4126711b"
+  },
+  {
+    "filename": "english_us_arpa.dict",
+    "url": "https://github.com/MontrealCorpusTools/mfa-models/releases/download/dictionary-english_us_arpa-v3.0.0/english_us_arpa.dict",
+    "sha256": "e8c6c7b036ae2b7c78d2768b8dc6b1f9359175b842956d00b48c53c9c332e6b0"
+  },
+  {
+    "filename": "japanese_mfa.zip",
+    "url": "https://github.com/MontrealCorpusTools/mfa-models/releases/download/acoustic-japanese_mfa-v3.0.0/japanese_mfa.zip",
+    "sha256": "85928ffb1024486872a677a92e1fa94d2f997462d0b84c73a58aa9bb0e35179a"
+  },
+  {
+    "filename": "japanese_mfa.dict",
+    "url": "https://github.com/MontrealCorpusTools/mfa-models/releases/download/dictionary-japanese_mfa-v3.0.0/japanese_mfa.dict",
+    "sha256": "4a0c66760576e4b7f3748f3169e7d5217c0135f857f0b5d34637c93a85fd1c91"
+  }
+]

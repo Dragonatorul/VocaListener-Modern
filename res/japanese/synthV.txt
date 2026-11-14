@@ -1,0 +1,96 @@
+# Japanese MFA IPA -> Synthesizer V romaji. Long vowels retain alignment duration.
+# Geminate consonants approximate the closure with cl. Devoiced vowels are voiced.
+a | a | Japanese
+aː | a | Japanese
+b | b | Japanese
+bː | cl b | Japanese
+bʲ | by | Japanese
+bʲː | cl by | Japanese
+c | ky | Japanese
+cː | cl ky | Japanese
+d | d | Japanese
+dː | cl d | Japanese
+dz | z | Japanese
+dzː | cl z | Japanese
+dʑ | j | Japanese
+dʑː | cl j | Japanese
+dʲ | dy | Japanese
+dʲː | cl dy | Japanese
+e | e | Japanese
+eː | e | Japanese
+h | h | Japanese
+hː | cl h | Japanese
+i | i | Japanese
+iː | i | Japanese
+i̥ | i | Japanese
+j | y | Japanese
+jː | cl y | Japanese
+k | k | Japanese
+kː | cl k | Japanese
+m | m | Japanese
+mː | cl m | Japanese
+mʲ | my | Japanese
+mʲː | cl my | Japanese
+n | n | Japanese
+nː | n | Japanese
+o | o | Japanese
+oː | o | Japanese
+p | p | Japanese
+pː | cl p | Japanese
+pʲ | py | Japanese
+pʲː | cl py | Japanese
+s | s | Japanese
+sː | cl s | Japanese
+t | t | Japanese
+tː | cl t | Japanese
+ts | ts | Japanese
+tsː | cl ts | Japanese
+tɕ | ch | Japanese
+tɕː | cl ch | Japanese
+tʲ | ty | Japanese
+tʲː | cl ty | Japanese
+v | v | Japanese
+vː | cl v | Japanese
+vʲ | v y | Japanese
+vʲː | cl v y | Japanese
+w | w | Japanese
+wː | cl w | Japanese
+z | z | Japanese
+zː | cl z | Japanese
+ç | hy | Japanese
+çː | cl hy | Japanese
+ŋ | N | Japanese
+ŋː | cl N | Japanese
+ɕ | sh | Japanese
+ɕː | cl sh | Japanese
+ɟ | gy | Japanese
+ɟː | cl gy | Japanese
+ɡ | g | Japanese
+ɡː | cl g | Japanese
+ɨ | u | Japanese
+ɨː | u | Japanese
+ɨ̥ | u | Japanese
+ɯ | u | Japanese
+ɯː | u | Japanese
+ɯ̥ | u | Japanese
+ɰ̃ | N | Japanese
+ɰ̃ː | cl N | Japanese
+ɲ | ny | Japanese
+ɲː | cl ny | Japanese
+ɴ | N | Japanese
+ɴː | N | Japanese
+ɸ | f | Japanese
+ɸː | cl f | Japanese
+ɸʲ | f y | Japanese
+ɸʲː | cl f y | Japanese
+ɾ | r | Japanese
+ɾː | cl r | Japanese
+ɾʲ | ry | Japanese
+ɾʲː | cl ry | Japanese
+ʑ | j | Japanese
+ʑː | cl j | Japanese
+ʔ | cl | Japanese
+ |  | Japanese
+sil |  | Japanese
+sp |  | Japanese
+spn | br | Japanese

@@ -1,51 +1,29 @@
-# Vocalistener Modern 
+# VocaListener Modern
 
-**Modern singing-to-synth converter for Vocaloid & SynthV.**
+Convert a recording of your singing and its exact lyrics into an editable **Synthesizer V `.svp` project**, with aligned phonemes and a pitch curve. English is the default; Japanese is also available. Processing runs locally on the CPU.
 
-Provide an audio clip of your singing and the exact lyrics text. The tool performs **forced alignment** matching audio phonemes precisely to lyrics using Montreal Forced Aligner (MFA). Then extracts pitch, timing, and phonemes to generate a native .vsqx (Vocaloid) or .svp (SynthV) save file. Open it in your preferred software for further editing with any voicebank.
+## Windows 11: one download
 
-## Key Features
-- **Forced Alignment Explained**: MFA analyzes audio against lyrics to timestamp each phoneme (sound unit like "ah" or "ih"). We map MFA's output to SynthV/Vocaloid phonemes via any dictionary provided under `res/language/soft.txt`, for example `res/russian/synthv.txt`. If a language you want to use for doesn't has a dict file nor even a folder, you need to make it manually, even if a language is supported by SynthV . Edit it freely if alignments don't match your vocals.
-- **Language Flexibility**: Supports any MFA language (Russian, German, etc.), even if not native to SynthV; bypassing official voicebank limits.
-- **Output**: Ready-to-edit save files for seamless workflow continuation.
+1. Open the [latest release](https://github.com/Dragonatorul/VocaListener-Modern/releases/latest).
+2. Download **`VocaListener-Modern-<version>-Windows-x64-Setup.exe`** under Assets.
+3. Run the installer, choose **Just Me**, and launch **VocaListener Modern** from the Start menu.
 
-## History
-- July 2025: Started development, failed miserably with my initial approach.
-- September 2025: Figured out the direction.
-- December 2025: First prototype for SynthV working.
+The installer contains Python, Qt, Montreal Forced Aligner (MFA), Kaldi/Kalpy, audio tools, English and Japanese models, pronunciation dictionaries, and phoneme mappings. No separate Python, Conda, Anaconda, WSL, Linux, Bash, CUDA, or model download is required. Installation and conversion work offline after the download. Windows 11 on Intel/AMD x64 is the supported target; ARM64 builds are not supplied.
 
+Read the [user guide](docs/windows.html) for conversion steps, file locations, troubleshooting, and uninstall instructions. It is also attached to each release as **User-Guide.html**, installed in the Start menu as **User Guide**, and available through **Get Help** and **Tutorial** inside the app.
 
-## Installation Steps
+## Use
 
-1. **Download and unpack** the repository.
-2. **Install Conda** for Python (Miniconda is recommended).
-   - **Note**: If you have an **Nvidia GPU**, remove the `cpu` part from the line:
-     ```
-     - conda-forge::kalpy=*=cpu*
-     ```
-     in the `environment.yml` file.
-3. **Create the Conda environment**:
-   ```
-   conda env create -f environment.yml
-   ```
-4. **Activate the environment** before running any code:
-   ```
-   conda activate lib/
-   ```
-5. **Install MFA language packets** (for example, Russian):
-   ```
-   mfa model download acoustic russian_mfa
-   mfa model download dictionary russian_mfa
-   ```
-   You can find the full languages list in this [repo](https://github.com/MontrealCorpusTools/mfa-models/tree/main/dictionary)
-6. **Run the GUI**:
-   ```
-   . run.sh
-   ```
+Choose English or Japanese, select a clear vocal recording, enter the exact lyrics (or choose a UTF-8 text file), and click **Next**. Click **Start Processing**, then **Save Output File** when all five steps finish. Open the saved `.svp` in your Synthesizer V editor and select a voice that supports the chosen language.
 
-## License
-MIT for free modyfying and distribution
+Use a short, clean, unaccompanied WAV recording for the best starting result. Alignment models are trained on speech, so singing timing and pronunciation often need manual adjustment. Japanese mappings approximate some distinctions, including geminates and devoiced vowels; audition the result in a Japanese-capable voice. The app does not include the Synthesizer V editor or commercial voice databases, needed only to edit/render the exported project. Vocaloid export and microphone recording are not implemented; those controls are disabled or marked as placeholders. Russian is not included in the Windows package or language selector.
 
-Most of the code in repo was written by an AI
+## Development and releases
 
-*Not a port of original VocaListener (Nagoya IT, ~2007), a fresh Python implementation.*
+See [development and release instructions](docs/development.md). GitHub Actions builds a native Windows installer, installs it on a separate Windows runner, and checks the GUI and actual conversion offline before publishing a version tag. Each release includes a SHA-256 checksum, resolved runtime package list, and third-party notices.
+
+## License and origins
+
+Application source: [MIT](LICENSE). Bundled components retain [their own licenses](docs/third-party.md); model licenses and package notices are installed alongside the application. Most of the original project was written using AI.
+
+This is a fresh implementation, not a port of the original VocaListener from Nagoya Institute of Technology.
