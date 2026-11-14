@@ -55,6 +55,11 @@ jobs:
           python -m compileall -q src packaging/windows
       - name: Bundle models, licenses, and installer
         run: |
+          $mt = (Get-ChildItem "${env:ProgramFiles(x86)}/Windows Kits/10/bin/*/x64/mt.exe" | Sort-Object FullName | Select-Object -Last 1).FullName
+          python packaging/windows/utf8_runtime.py --prefix "$env:RUNNER_TEMP/runtime" --destination build/utf8-runtime --mt $mt
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          python packaging/windows/mfa_patch.py --prefix "$env:RUNNER_TEMP/runtime" --destination build/mfa_alignment_base.py
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
           $cache = (conda info --json | ConvertFrom-Json).pkgs_dirs[0]
           python packaging/windows/build.py --version $env:APP_VERSION --prefix "$env:RUNNER_TEMP\runtime" --package-cache $cache
           if ($LASTEXITCODE) { exit $LASTEXITCODE }

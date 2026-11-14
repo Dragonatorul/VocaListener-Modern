@@ -78,6 +78,9 @@ def main():
     (notices / "packages.json").write_text(json.dumps(packages, indent=2), encoding="utf-8")
     extras = [{str(file.resolve()): f"app/{file.relative_to(app).as_posix()}"} for file in app.rglob("*") if file.is_file()]
     extras.append({str((ROOT / "build/VocaListener-Modern.exe").resolve()): "VocaListener-Modern.exe"})
+    for name in ["python.exe", "pythonw.exe"]:
+        extras.append({str((ROOT / "build/utf8-runtime" / name).resolve()): f"app/utf8-runtime/{name}"})
+    extras.append({str((ROOT / "build/mfa_alignment_base.py").resolve()): "app/patches/mfa_alignment_base.py"})
     recipe = {
         "name": "VocaListener-Modern", "version": args.version,
         "company": "VocaListener Modern contributors",

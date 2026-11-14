@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import sys
 import time
+import ctypes
 from unittest.mock import patch
 
 parser = argparse.ArgumentParser()
@@ -16,6 +17,7 @@ args = parser.parse_args()
 sys.path.insert(0, str(args.prefix / "app/src"))
 from runtime import configure_runtime, data_directory, model_paths
 configure_runtime()
+assert ctypes.windll.kernel32.GetACP() == 65001, "Bundled Python must use UTF-8 native APIs"
 from PyQt6.QtWidgets import QApplication, QFileDialog, QMessageBox
 from vocalistener_gui import VocalListenerModern
 
@@ -43,6 +45,7 @@ assert not (args.prefix / "app/res/russian").exists()
 assert all(path.is_file() for path in model_paths("english"))
 shortcut = Path(os.environ["APPDATA"]) / "Microsoft/Windows/Start Menu/Programs/VocaListener Modern/VocaListener Modern.lnk"
 assert shortcut.is_file(), "Installer did not create a Start menu entry"
+assert shortcut.with_name("User Guide.lnk").is_file(), "Offline guide shortcut is missing"
 
 def convert(language, audio, lyrics):
     window = VocalListenerModern()

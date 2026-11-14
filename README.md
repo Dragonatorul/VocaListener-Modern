@@ -10,7 +10,7 @@ Convert a recording of your singing and its exact lyrics into an editable **Synt
 
 The installer contains Python, Qt, Montreal Forced Aligner (MFA), Kaldi/Kalpy, audio tools, English and Japanese models, pronunciation dictionaries, and phoneme mappings. No separate Python, Conda, Anaconda, WSL, Linux, Bash, CUDA, or model download is required. Installation and conversion work offline after the download. Windows 11 on Intel/AMD x64 is the supported target; ARM64 builds are not supplied.
 
-Read the [user guide](docs/windows.html) for conversion steps, file locations, troubleshooting, and uninstall instructions. It is also attached to each release as **User-Guide.html**, installed in the Start menu as **User Guide**, and available through **Get Help** and **Tutorial** inside the app.
+Read the [user guide](https://github.com/Dragonatorul/VocaListener-Modern/releases/latest/download/User-Guide.html) for conversion steps, file locations, troubleshooting, and uninstall instructions. It is also attached to each release as **User-Guide.html**, installed in the Start menu as **User Guide**, and available through **Get Help** and **Tutorial** inside the app.
 
 ## Use
 

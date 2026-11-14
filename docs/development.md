@@ -16,7 +16,9 @@ For source runs without `models/`, first download MFA models with `mfa model dow
 
 The legacy `run.sh` is a source-development shortcut. The desktop entry point is `src/launch.py`; it configures bundled DLLs, PATH, Qt plugins, UTF-8 subprocess output, local MFA state, and Numba caches before importing native dependencies. Conda environment names do not gate imports. The native installed launcher ignores external Python packages and invokes this entry point with the packaged interpreter. Processing uses that interpreter too.
 
-`src/mfa_compat.py` repairs MFA 3.3.8's Windows executable probe: upstream adds shell quotes to a filename before passing it in a subprocess argument list. The compatibility layer removes those outer quotes while preserving binary discovery and all dependency checks. The installed test's folder with spaces is the regression check for this issue. Reassess this compatibility layer when updating MFA.
+`src/mfa_compat.py` repairs MFA 3.3.8's Windows executable probe: upstream adds shell quotes to a filename before passing it in a subprocess argument list. The compatibility layer removes those outer quotes while preserving binary discovery and all dependency checks. The installed test's folder with spaces is the regression check for this issue. The build also applies a checked two-line source patch quoting the CSV filenames in MFA's SQLite `.import` commands; otherwise alignment fails when user-data paths contain spaces. Reassess these compatibility fixes when updating MFA.
+
+The builder also preserves Python's existing PE manifests and adds Microsoft's `activeCodePage=UTF-8` setting. The mandatory post-install script applies those interpreter executables after constructor links the original packages. This allows native OpenFst/Kalpy file APIs to use Unicode paths without changing the user's Windows locale. The installed check asserts the active code page and processes files under a Japanese-character path. Package inventories describe the upstream conda archives; the interpreter manifests are the documented local binary modification.
 
 ## Validation
 
