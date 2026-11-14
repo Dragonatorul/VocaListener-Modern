@@ -42,6 +42,19 @@ def main():
     shutil.copy2(ROOT / "LICENSE", app / "LICENSE")
     for model in json.loads((ROOT / "packaging/windows/models.json").read_text()):
         download(model["url"], app / "models" / model["filename"], model["sha256"])
+    # Every pronunciation phone in both bundled dictionaries must be mapped.
+    import sys
+    sys.path.insert(0, str(ROOT / "src"))
+    from clean_phonemes import load_mapping_dict
+    for language, model in [("english", "english_us_arpa"), ("japanese", "japanese_mfa")]:
+        mapping = load_mapping_dict(ROOT / f"res/{language}/synthV.txt")
+        phones = set()
+        for line in (app / "models" / f"{model}.dict").read_text(encoding="utf-8").splitlines():
+            if "\t" in line:
+                phones.update(line.rsplit("\t", 1)[1].split())
+        missing = phones - mapping.keys()
+        if missing:
+            raise ValueError(f"Missing {language} phoneme mappings: {sorted(missing)}")
     notices = app / "third-party"
     notices.mkdir()
     for language, variant in [("english", "us_arpa"), ("japanese", "mfa")]:

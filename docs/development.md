@@ -24,7 +24,7 @@ python -m compileall -q src packaging/windows
 actionlint .github/workflows/windows-release.yml
 ```
 
-`tests/test.py` and `tests/test_packages.py` are legacy developer diagnostics, not the installed-app release gate. `tests/smoke_installed.py` is the Windows integration check: it creates a tiny English audio fixture using Windows speech synthesis, drives the real wizard and worker through all five steps, and checks TextGrid, phonemes, pitch, SVP, help, and shortcuts. Only file dialogs and modal error reporting are replaced for unattended execution.
+`tests/test.py` and `tests/test_packages.py` are legacy developer diagnostics, not the installed-app release gate. `tests/smoke_installed.py` is the Windows integration check: it creates a tiny English audio fixture using Windows speech synthesis, drives the real wizard and worker through all five steps, and checks TextGrid, phonemes, pitch, SVP, help, and shortcuts. It repeats conversion with a checksum-pinned Japanese recording and transcript from the MFA 3.3.8 documentation (MIT licensed, Michael McAuliffe). The fixture is fetched before network blocking; the installed app never downloads it. Only file dialogs and modal error reporting are replaced for unattended execution.
 
 ## Build and publish
 

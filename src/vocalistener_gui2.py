@@ -373,7 +373,7 @@ class Screen2(QMainWindow):
             self.btn_start.setEnabled(True)
             self.btn_start.setText("Resume Processing")
             self.btn_stop.setEnabled(False)
-    
+
             # Alert User
             msg = (
                 f"Found {len(phonemes)} unset phonemes and added them to:\n{dict_path}\n\n"

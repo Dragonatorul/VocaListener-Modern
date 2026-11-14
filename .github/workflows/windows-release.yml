@@ -92,6 +92,13 @@ jobs:
           $process = Start-Process -FilePath $installer -ArgumentList @('/S', '/InstallationType=JustMe', '/AddToPath=0', '/RegisterPython=0', "/D=$prefix") -Wait -PassThru
           if ($process.ExitCode -ne 0) { throw "Installer failed: $($process.ExitCode)" }
           "INSTALLED_PREFIX=$prefix" >> $env:GITHUB_ENV
+      - name: Fetch checksum-pinned Japanese test recording
+        shell: pwsh
+        run: |
+          $url = 'https://raw.githubusercontent.com/MontrealCorpusTools/Montreal-Forced-Aligner/v3.3.8/docs/source/_static/sound_files/japanese_slow.wav'
+          Invoke-WebRequest $url -OutFile "$env:RUNNER_TEMP/japanese.wav"
+          $hash = (Get-FileHash "$env:RUNNER_TEMP/japanese.wav" -Algorithm SHA256).Hash.ToLower()
+          if ($hash -ne '796afd0546e18ccce834a421d84af1e20fed5efe3045504adb81cc21debb4034') { throw 'Japanese fixture checksum mismatch' }
       - name: Test the installed app offline with no development PATH
         shell: pwsh
         run: |
@@ -104,7 +111,7 @@ jobs:
           $gui = Start-Process "$env:INSTALLED_PREFIX\VocaListener-Modern.exe" -ArgumentList '--smoke-test' -PassThru
           if (-not $gui.WaitForExit(60000)) { $gui.Kill(); throw 'GUI did not finish the startup check.' }
           if ($gui.ExitCode -ne 0) { throw 'Installed GUI failed.' }
-          & "$env:INSTALLED_PREFIX\python.exe" tests/smoke_installed.py --prefix $env:INSTALLED_PREFIX
+          & "$env:INSTALLED_PREFIX\python.exe" tests/smoke_installed.py --prefix $env:INSTALLED_PREFIX --japanese-audio "$env:RUNNER_TEMP/japanese.wav"
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Retain diagnostic logs
         if: always()
@@ -139,7 +146,7 @@ jobs:
 
           All runtime dependencies and the supported language models are included. No Python, Conda, WSL, Linux, Bash, GPU toolkit, or additional model download is needed. Launch **VocaListener Modern** from the Start menu after installation.
 
-          **English is the default.** Export is Synthesizer V `.svp`; Vocaloid export and recording are not implemented. A Synthesizer V editor and a suitable voice are only needed to render/edit the resulting project.
+          **English is the default; Japanese is also available.** Export is Synthesizer V `.svp`; Vocaloid export and recording are not implemented. A Synthesizer V editor and a suitable voice are only needed to render/edit the resulting project.
 
           Open **User Guide** in the Start menu or **Get Help** in the app for offline instructions. The same guide is attached as **User-Guide.html**. See **SHA256SUMS.txt** for the installer checksum and **THIRD-PARTY.md** for dependencies and licensing.
 
