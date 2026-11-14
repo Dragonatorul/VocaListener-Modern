@@ -41,6 +41,9 @@ def configure_runtime():
     os.environ["PYTHONUTF8"] = "1"
     os.environ["PYTHONIOENCODING"] = "utf-8"
     os.environ["PYTHONNOUSERSITE"] = "1"
+    for stream in (sys.stdout, sys.stderr):
+        if stream is not None and hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
     os.environ["MFA_ROOT_DIR"] = str(data_directory() / "mfa")
     os.environ["NUMBA_CACHE_DIR"] = str(data_directory() / "numba")
     os.environ["OMP_NUM_THREADS"] = "1"

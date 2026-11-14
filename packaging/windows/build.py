@@ -6,7 +6,6 @@ from pathlib import Path
 import re
 import shutil
 import urllib.request
-import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 MODEL_SOURCE = "9cbc4c96af41b8a0acbd98eb75888839af9f1e17"
@@ -38,7 +37,7 @@ def main():
     for language in ["english", "japanese"]:
         shutil.copytree(ROOT / "res" / language, app / "res" / language)
     shutil.copytree(ROOT / "docs", app / "docs")
-    shutil.copytree(ROOT / "packaging" / "windows", app / "packaging" / "windows")
+    shutil.copytree(ROOT / "packaging" / "windows", app / "packaging" / "windows", ignore=shutil.ignore_patterns("__pycache__"))
     shutil.copy2(ROOT / "LICENSE", app / "LICENSE")
     for model in json.loads((ROOT / "packaging/windows/models.json").read_text()):
         download(model["url"], app / "models" / model["filename"], model["sha256"])
@@ -100,7 +99,7 @@ def main():
         "header_image_text": "English singing to Synthesizer V",
         "conclusion_text": "Ready to use\nOpen VocaListener Modern from the Start menu. The User Guide is available there and in the app. All English and Japanese models and dependencies are included.",
     }
-    (stage / "construct.yaml").write_text(yaml.safe_dump(recipe, sort_keys=False), encoding="utf-8")
+    (stage / "construct.yaml").write_text(json.dumps(recipe, indent=2), encoding="utf-8")
 
 
 if __name__ == "__main__":

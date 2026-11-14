@@ -15,6 +15,11 @@ import runtime
 
 
 class RuntimeTests(unittest.TestCase):
+    def test_unicode_logs_without_a_utf8_console(self):
+        result = subprocess.run([sys.executable, "-c", "from runtime import configure_runtime; configure_runtime(); print('日本語')"], cwd=ROOT / "src", env={**os.environ, "PYTHONIOENCODING": "ascii"}, capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.decode("utf-8").strip(), "日本語")
+
     def test_conversion_modules_import_without_conda_activation(self):
         env = dict(os.environ)
         env.pop("CONDA_DEFAULT_ENV", None)

@@ -104,6 +104,7 @@ jobs:
         run: |
           $env:VOCALISTENER_DATA_DIR = "$env:RUNNER_TEMP\User Data\日本語"
           $env:PATH = "$env:SystemRoot\System32;$env:SystemRoot"
+          $env:PYTHONUTF8 = "1"
           Remove-Item Env:CONDA_PREFIX, Env:CONDA_DEFAULT_ENV, Env:PYTHONPATH -ErrorAction SilentlyContinue
           foreach ($program in @('python.exe', 'pythonw.exe', 'VocaListener-Modern.exe')) {
             New-NetFirewallRule -DisplayName "VocaListener offline $program" -Direction Outbound -Action Block -Program "$env:INSTALLED_PREFIX\$program" | Out-Null
